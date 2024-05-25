@@ -1,70 +1,104 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Image, StyleSheet, View, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { Colors } from '@/constants/Colors';
+import { User } from './type';
 
 export default function HomeScreen() {
+  const currentUserId = '6651d29b6da739afd68196b9';
+
+  const [user, setUser] = useState<User>();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const response = await fetch(
+        `http://localhost:3000/users/${currentUserId}`
+      );
+      const user = await response.json();
+      setUser(user.data);
+      return user.data;
+    };
+
+    fetchUser();
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
+    <SafeAreaView style={{ paddingHorizontal: 24, marginTop: 70 }}>
+      <View
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginBottom: 72,
+        }}
+      >
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+          source={{
+            uri: user?.profile_picture,
+          }}
+          style={{ width: 90, height: 90, borderRadius: 100 }}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <Text style={{ ...styles.title, marginTop: 12 }}>{user?.name}</Text>
+        <Text
+          style={{
+            ...styles.label,
+            marginTop: 8,
+          }}
+        >
+          {user?.bio}
+        </Text>
+
+        <Text style={{ ...styles.title, marginTop: 12 }}>Interested in</Text>
+        <Text
+          style={{
+            ...styles.label,
+            marginTop: 8,
+          }}
+        >
+          {user?.interests.join(' | ')}
+        </Text>
+      </View>
+
+      <View
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}
+      >
+        <View>
+          <Text style={styles.label}>Photos</Text>
+          <Text style={{ ...styles.title }}>143</Text>
+        </View>
+
+        <View>
+          <Text style={styles.label}>Followers</Text>
+          <Text style={{ ...styles.title }}>321</Text>
+        </View>
+
+        <View>
+          <Text style={styles.label}>Following</Text>
+          <Text style={{ ...styles.title }}>50</Text>
+        </View>
+      </View>
+
+      <View></View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  label: {
+    fontSize: 16,
+    fontWeight: 400,
+    color: Colors.gray['500'],
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  title: {
+    fontSize: 20,
+    fontWeight: 700,
+    color: Colors.gray['900'],
+    textAlign: 'center',
   },
 });
